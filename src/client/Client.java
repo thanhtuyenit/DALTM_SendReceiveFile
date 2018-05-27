@@ -82,7 +82,7 @@ public class Client extends JFrame implements ActionListener {
 		fileChooser = new JFileChooser();
 		btnSelectFile = createIconButton("/image/open.png", 40, 50, 40, 40);
 		btnSelectFile.setBorder(BorderFactory.createLineBorder(Color.BLUE, 2));
-		btnSelectFile.addActionListener(this);
+		btnSelectFile.setEnabled(false);
 		pnSelectFile.add(btnSelectFile);
 
 		tfFilePath = new JTextField();
@@ -93,7 +93,7 @@ public class Client extends JFrame implements ActionListener {
 		pnSelectFile.add(tfFilePath);
 
 		btnSend = createButton(pnSelectFile, "Send", 140, 120, 100, 30);
-		btnSend.addActionListener(this);
+		btnSend.setEnabled(false);
 		JButton btnCancel = createButton(pnSelectFile, "Cancel", 270, 120, 100, 30);
 		btnCancel.addActionListener(this);
 		pnMain.add(pnSelectFile);
@@ -116,10 +116,11 @@ public class Client extends JFrame implements ActionListener {
 			if (select == JFileChooser.APPROVE_OPTION) {
 				String path = fileChooser.getSelectedFile().getPath();
 				tfFilePath.setText(path); // view path file select
+				btnSend.setEnabled(true);
+				btnSend.addActionListener(this);
 			}
 		} else if (e.getSource() == btnSend) {
-			System.out.println("tfFilePath:"+tfFilePath);
-			//while (tfFilePath.getText() != "") {
+			System.out.println("tfFilePath:"+tfFilePath.getText().trim());
 				System.out.println("Thực hiện");
 				try {
 					if (socket.isConnected()) {
@@ -135,7 +136,6 @@ public class Client extends JFrame implements ActionListener {
 					JOptionPane.showMessageDialog(null, "Truyền file thất bại!");
 					e1.printStackTrace();
 				}
-			//}
 
 		} else if (e.getSource() == btnConnect) {
 			userSender = tfUserSender.getText();
@@ -149,6 +149,8 @@ public class Client extends JFrame implements ActionListener {
 			} catch (IOException ex) {
 				tfUserSender.setEditable(true);
 			}
+			btnSelectFile.setEnabled(true);
+			btnSelectFile.addActionListener(this);
 			btnConnect.setText("GetFile");
 		} else {
 			System.exit(0);
