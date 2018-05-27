@@ -86,6 +86,7 @@ public class Client extends JFrame implements ActionListener {
 		pnSelectFile.add(btnSelectFile);
 
 		tfFilePath = new JTextField();
+		tfFilePath.setText("");
 		tfFilePath.setEditable(false);
 		tfFilePath.setFont(new Font("Consolas", Font.BOLD, 13));
 		tfFilePath.setBounds(100, 50, 380, 40);
@@ -114,24 +115,28 @@ public class Client extends JFrame implements ActionListener {
 			int select = fileChooser.showOpenDialog(Client.this);
 			if (select == JFileChooser.APPROVE_OPTION) {
 				String path = fileChooser.getSelectedFile().getPath();
-//				String[] tmp = path.split("/");
-				tfFilePath.setText(path); //view name file select
+				tfFilePath.setText(path); // view path file select
 			}
 		} else if (e.getSource() == btnSend) {
-			try {
-				if (socket.isConnected()) {
-					String path = tfFilePath.getText();
-					String endOfFile = getEndOfFile(path);
-					dataOutputStream.writeUTF("sendfile:" + userSender + ":" + userReceiver + ":" + endOfFile);
-					sendFile(socket, path);
-					System.out.println("Sendfile thành công!");
-				} else {
-					JOptionPane.showMessageDialog(null, "Bạn phải connect tới server!");
+			System.out.println("tfFilePath:"+tfFilePath);
+			//while (tfFilePath.getText() != "") {
+				System.out.println("Thực hiện");
+				try {
+					if (socket.isConnected()) {
+						String path = tfFilePath.getText();
+						String endOfFile = getEndOfFile(path);
+						dataOutputStream.writeUTF("sendfile:" + userSender + ":" + userReceiver + ":" + endOfFile);
+						sendFile(socket, path);
+						System.out.println("Sendfile thành công!");
+					} else {
+						JOptionPane.showMessageDialog(null, "Bạn phải connect tới server!");
+					}
+				} catch (IOException e1) {
+					JOptionPane.showMessageDialog(null, "Truyền file thất bại!");
+					e1.printStackTrace();
 				}
-			} catch (IOException e1) {
-				JOptionPane.showMessageDialog(null, "Truyền file thất bại!");
-				e1.printStackTrace();
-			}
+			//}
+
 		} else if (e.getSource() == btnConnect) {
 			userSender = tfUserSender.getText();
 			userReceiver = tfUserReceiver.getText();
