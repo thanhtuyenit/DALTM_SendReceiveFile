@@ -10,7 +10,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.Socket;
+import java.net.SocketException;
+import java.util.Enumeration;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -26,7 +31,6 @@ import javax.swing.JTextField;
 public class Client extends JFrame implements ActionListener {
 
 	private static final int PORT_DEFAULT = 1412;
-	private static final String HOST_DEFAULT = "localhost";
 	private static final String PATHSTORE = "/media/pc/FA5AD83A5AD7F17D/tong_hop/hoctap/Ki8/LapTrinhMang/Code/DALTM_SendReceiveFile/client";
 	JButton btnSend;
 	JButton btnSelectFile;
@@ -43,6 +47,7 @@ public class Client extends JFrame implements ActionListener {
 	DataOutputStream dataOutputStream;
 	String userSender;
 	String userReceiver;
+	String ipHost = "127.0.0.1";
 
 	public Client(String title) {
 		super(title);
@@ -51,7 +56,7 @@ public class Client extends JFrame implements ActionListener {
 
 		tfHost = new JTextField();
 		createPanelConnection(pnMain, new JLabel("Host:"), 15, 20, 50, 30, tfHost, 70, 20, 130, 30);
-		tfHost.setText(HOST_DEFAULT);
+		tfHost.setText(getDefautHost());
 
 		tfPort = new JTextField();
 		createPanelConnection(pnMain, new JLabel("Port:"), 220, 20, 50, 30, tfPort, 275, 20, 70, 30);
@@ -120,28 +125,27 @@ public class Client extends JFrame implements ActionListener {
 				btnSend.addActionListener(this);
 			}
 		} else if (e.getSource() == btnSend) {
-			System.out.println("tfFilePath:"+tfFilePath.getText().trim());
-				System.out.println("Thực hiện");
-				try {
-					if (socket.isConnected()) {
-						String path = tfFilePath.getText();
-						String endOfFile = getEndOfFile(path);
-						dataOutputStream.writeUTF("sendfile:" + userSender + ":" + userReceiver + ":" + endOfFile);
-						sendFile(socket, path);
-						System.out.println("Sendfile thành công!");
-					} else {
-						JOptionPane.showMessageDialog(null, "Bạn phải connect tới server!");
-					}
-				} catch (IOException e1) {
-					JOptionPane.showMessageDialog(null, "Truyền file thất bại!");
-					e1.printStackTrace();
+			try {
+				if (socket.isConnected()) {
+					String path = tfFilePath.getText();
+					String endOfFile = "";
+					System.out.println("endOfFile " + endOfFile);
+					String[] tmp = path.split("/");
+					endOfFile = tmp[tmp.length - 1];
+					dataOutputStream.writeUTF("sendfile:" + userSender + ":" + userReceiver + ":" + endOfFile);
+					sendFile(socket, path);
+					System.out.println("Sendfile thành công!");
 				}
+			} catch (IOException e1) {
+				JOptionPane.showMessageDialog(null, "Truyền file thất bại!");
+				e1.printStackTrace();
+			}
 
 		} else if (e.getSource() == btnConnect) {
 			userSender = tfUserSender.getText();
 			userReceiver = tfUserReceiver.getText();
 			try {
-				socket = new Socket("localhost", 1412);
+				socket = new Socket(tfHost.getText(), Integer.parseInt(tfPort.getText()));
 				dataInputStream = new DataInputStream(socket.getInputStream());
 				dataOutputStream = new DataOutputStream(socket.getOutputStream());
 				dataOutputStream.writeUTF("connect:" + userSender + ":" + userReceiver);
@@ -160,11 +164,6 @@ public class Client extends JFrame implements ActionListener {
 	public void listenThread() {
 		Thread incomingReader = new Thread(new Incoming());
 		incomingReader.start();
-	}
-
-	private String getEndOfFile(String path) {
-		int size = path.length();
-		return path.substring(size - 4, size);
 	}
 
 	public void sendFile(Socket clientSock, String file) throws IOException {
@@ -261,4 +260,26 @@ public class Client extends JFrame implements ActionListener {
 		}
 	}
 
+	String getDefautHost() {
+		String ip = "127.0.0.1";
+		try {
+			Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+			while (interfaces.hasMoreElements()) {
+				NetworkInterface iface = interfaces.nextElement();
+				// filters out 127.0.0.1 and inactive interfaces
+				if (iface.isLoopback() || !iface.isUp())
+					continue;
+				Enumeration<InetAddress> addresses = iface.getInetAddresses();
+				while (addresses.hasMoreElements()) {
+					InetAddress addr = addresses.nextElement();
+					if (addr instanceof Inet6Address)
+						continue;
+					ip = addr.getHostAddress();
+				}
+			}
+		} catch (SocketException e) {
+			throw new RuntimeException(e);
+		}
+		return ip;
+	}
 }
