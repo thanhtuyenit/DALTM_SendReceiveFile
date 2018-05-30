@@ -31,7 +31,7 @@ import javax.swing.JTextField;
 public class Client extends JFrame implements ActionListener {
 
 	private static final int PORT_DEFAULT = 1412;
-	private static final String PATHSTORE = "/media/pc/FA5AD83A5AD7F17D/tong_hop/hoctap/Ki8/LapTrinhMang/Code/DALTM_SendReceiveFile/client";
+	private static String PATHSTORE = "";
 	JButton btnSend;
 	JButton btnSelectFile;
 	JButton btnConnect;
@@ -111,6 +111,8 @@ public class Client extends JFrame implements ActionListener {
 	}
 
 	public static void main(String[] args) {
+		String workingDir = System.getProperty("user.dir");
+		PATHSTORE = workingDir+"/client";
 		new Client("Client");
 	}
 
@@ -145,6 +147,7 @@ public class Client extends JFrame implements ActionListener {
 			userSender = tfUserSender.getText();
 			userReceiver = tfUserReceiver.getText();
 			try {
+				System.out.println("tfHost: "+tfHost.getText()+"tfPort: "+tfPort.getText());
 				socket = new Socket(tfHost.getText(), Integer.parseInt(tfPort.getText()));
 				dataInputStream = new DataInputStream(socket.getInputStream());
 				dataOutputStream = new DataOutputStream(socket.getOutputStream());

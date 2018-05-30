@@ -30,7 +30,7 @@ import javax.swing.JTextField;
 
 @SuppressWarnings("serial")
 public class Server extends JFrame implements ActionListener {
-	private static final String PATH_STORE = "/media/pc/FA5AD83A5AD7F17D/tong_hop/hoctap/Ki8/LapTrinhMang/Code/DALTM_SendReceiveFile/server";
+	private static String PATH_STORE = "";
 	private static final int PORT_DEFAULT = 1412;
 	private JTextArea taInformation;
 	private JButton btnStart;
@@ -116,6 +116,8 @@ public class Server extends JFrame implements ActionListener {
 		} catch (SocketException e) {
 		    throw new RuntimeException(e);
 		}
+		String workingDir = System.getProperty("user.dir");
+		PATH_STORE = workingDir+"/server";
 		new Server("Server - "+ip);
 	}
 
@@ -154,6 +156,7 @@ public class Server extends JFrame implements ActionListener {
 			} catch (NumberFormatException e) {
 				JOptionPane.showMessageDialog(null,
 						"Port không hợp lệ hoặc đã được sử dụng!\n " + "Server sẽ chạy với port mặc định.");
+				tfServerPort.setText("1412");
 			}
 			try {
 				ServerSocket serverSocket = new ServerSocket(currentPort);
