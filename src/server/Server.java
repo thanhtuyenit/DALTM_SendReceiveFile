@@ -106,16 +106,11 @@ public class Server extends JFrame implements ActionListener {
 		        // filters out 127.0.0.1 and inactive interfaces
 		        if (iface.isLoopback() || !iface.isUp())
 		            continue;
-
 		        Enumeration<InetAddress> addresses = iface.getInetAddresses();
 		        while(addresses.hasMoreElements()) {
 		            InetAddress addr = addresses.nextElement();
-
-		            // *EDIT*
 		            if (addr instanceof Inet6Address) continue;
-
 		            ip = addr.getHostAddress();
-		            System.out.println(iface.getDisplayName() + " " + ip);
 		        }
 		    }
 		} catch (SocketException e) {
@@ -201,7 +196,7 @@ public class Server extends JFrame implements ActionListener {
 			try {
 				while ((message = din.readUTF()) != null) {
 					data = message.split(":");
-					System.out.println("Received: " + message + "\n");
+					System.out.println("Request: " + message + "\n");
 					if (data[0].equals("connect")) {
 						userUploads.add(data[1]);
 						userDownloads.add(data[2]);
@@ -214,18 +209,17 @@ public class Server extends JFrame implements ActionListener {
 								if (f.exists() && f.isFile()) {
 									dos.writeUTF("sendfile:" + data[1] + ":" + endOfFile);
 									sendFile(socket, PATH_STORE + "/" + nameSend + "/" + nameSend + endOfFile);
-									System.out.println("Đã sendfile tro lai cho client " + data[1]);
+									System.out.println("Đã gởi file tro lai cho client " + data[1]);
 								}
 							}
 						}
 
 					} else if (data[0].equals("sendfile")) {
-						System.out.println("Đã vào sendfile");
 						String nameStore = data[2];
 						endOfFile = data[3];
 						createStore(nameStore);
 						saveFile(socket, PATH_STORE + "/" + nameStore + "/" + nameStore + endOfFile);
-						taInformation.append(data[2] + " đã truyền file!\n");
+						taInformation.append(data[1] + " đã truyền file!\n");
 						int size = userDownloads.size();
 						for (int i = 0; i < size; i++) {
 							if (data[2].equals(userDownloads.get(i))) {

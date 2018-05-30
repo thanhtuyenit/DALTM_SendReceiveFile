@@ -129,15 +129,15 @@ public class Client extends JFrame implements ActionListener {
 				if (socket.isConnected()) {
 					String path = tfFilePath.getText();
 					String endOfFile = "";
-					System.out.println("endOfFile " + endOfFile);
 					String[] tmp = path.split("/");
 					endOfFile = tmp[tmp.length - 1];
 					dataOutputStream.writeUTF("sendfile:" + userSender + ":" + userReceiver + ":" + endOfFile);
 					sendFile(socket, path);
-					System.out.println("Sendfile thành công!");
+					System.out.println("Gởi file thành công!");
+					JOptionPane.showMessageDialog(null, "Server đã nhận được file!");
 				}
 			} catch (IOException e1) {
-				JOptionPane.showMessageDialog(null, "Truyền file thất bại!");
+				JOptionPane.showMessageDialog(null, "Truyền file tới server thất bại!");
 				e1.printStackTrace();
 			}
 
